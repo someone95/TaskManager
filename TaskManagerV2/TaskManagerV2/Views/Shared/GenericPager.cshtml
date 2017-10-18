@@ -1,0 +1,66 @@
+﻿@model TaskManagerV2.ViewModels.Shared.PagerVM
+
+@{
+    string controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+    string actionName = this.ViewContext.RouteData.Values["action"].ToString();
+    string itemsPerPageLinkTemplate = "http://localhost:59967/" + controllerName + "/" + actionName + "?";
+    string pagerLinkTemplate = "/" + controllerName + "/" + actionName + "?";
+}
+@{
+    foreach (var key in this.Request.QueryString.AllKeys)
+    {
+        if (key == (Model.Prefix + ".ItemsPerPage") || key == (Model.Prefix + ".CurrentPage"))
+        {
+            continue;
+        }
+        itemsPerPageLinkTemplate += key + "=" + this.Request.QueryString[key] + "&";
+        pagerLinkTemplate += key + "=" + this.Request.QueryString[key] + "&";
+    }
+
+    foreach (var val in this.ViewContext.RouteData.Values)
+    {
+        if (val.Key == "controller" || val.Key == "action")
+        {
+            continue;
+        }
+        itemsPerPageLinkTemplate += val.Key + "=" + val.Value + "&";
+        pagerLinkTemplate += val.Key + "=" + val.Value + "&";
+    }
+}
+<script>
+    function @(Model.Prefix)_ItemsPerPage_Change() {
+
+        var value = $("#@(Model.Prefix)_ItemsPerPage").val();
+        var link = '@Html.Raw(itemsPerPageLinkTemplate)@(Model.Prefix).ItemsPerPage=' + value;
+
+        window.location = link;
+    }
+</script>
+
+<div class="row">
+    <div class="col-sm-2 col-sm-offset-4">
+        <div class="dataTables_length" id="dataTables-example_length">
+            <label>
+                Show
+                <select id="@(Model.Prefix)_ItemsPerPage" name="@(Model.Prefix).ItemsPerPage" onchange="@(Model.Prefix)_ItemsPerPage_Change();" aria-controls="dataTables-example" class="form-control input-sm">
+                    <option @(Model.ItemsPerPage == 1 ? "selected" : "") value="1">1</option>
+                    <option @(Model.ItemsPerPage == 5 ? "selected" : "") value="5">5</option>
+                    <option @(Model.ItemsPerPage == 10 ? "selected" : "") value="10">10</option>
+                </select> entries
+            </label>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="dataTables_paginate paging_simple_numbers" id="dataTables-example_paginate">
+            <ul class="pagination">
+                @for (int i = 0; i < Model.PageCount; i++)
+                {
+                    <li class="@(i == Model.CurrentPage ? "paginate_button active" : "paginate_button")" aria- aria-controls="dataTables-example" tabindex="0">
+                        <a href="@pagerLinkTemplate@(Model.Prefix).CurrentPage=@i&@(Model.Prefix).ItemsPerPage=@Model.ItemsPerPage">@(i + 1)</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+

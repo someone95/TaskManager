@@ -1,0 +1,78 @@
+﻿<nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+
+        @Html.ActionLink("Task Manager", "Index", "Home", null, new { @class = "navbar-brand" })
+
+    </div>
+    <!-- /.navbar-header -->
+
+    <ul class="nav navbar-top-links navbar-right">
+        <!-- /.dropdown -->
+        <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-user">
+                @if (TaskManagerV2.Models.AuthenticationManager.LoggedUser != null)
+                {
+                    <li>
+                        <a href="#"><i class="fa fa-user fa-fw"></i>@TaskManagerV2.Models.AuthenticationManager.LoggedUser.Username</a>
+                    </li>
+                            <li class="divider"></li>
+                }
+
+                <li>
+                    @if (TaskManagerV2.Models.AuthenticationManager.LoggedUser == null)
+                    {
+                        <a href="@Url.Action("LogIn", "Home")">
+                            <i class="fa fa-sign-out fa-fw"></i>Login
+                        </a>
+
+                    <div class="divider"></div>
+
+                        <a href="@Url.Action("Register", "Home")">
+                            <i class="fa fa-bomb"></i>Join in
+                        </a>
+                    }
+                    @if (TaskManagerV2.Models.AuthenticationManager.LoggedUser != null)
+                    {
+                        <a href="@Url.Action("LogOut", "Home")">
+                            <i class="fa fa-sign-out fa-fw"></i>Logout
+                        </a>
+                    }
+
+                </li>
+            </ul>
+            <!-- /.dropdown-user -->
+        </li>
+        <!-- /.dropdown -->
+    </ul>
+    <!-- /.navbar-top-links -->
+    @if (TaskManagerV2.Models.AuthenticationManager.LoggedUser != null)
+            {
+        <div class="navbar-default sidebar" role="navigation">
+            <div class="sidebar-nav navbar-collapse">
+                <ul class="nav in" id="side-menu">
+                    @if (TaskManagerV2.Models.AuthenticationManager.LoggedUser.IsAdmin == true)
+                    {
+                        <li>
+                            <a href="@Url.Action("Index", "UsersManagement")"><i class="fa fa-user fa-fw"></i>Users</a>
+                        </li>
+                    }
+                    <li>
+                        <a href="@Url.Action("Index", "TasksManagement")"><i class="fa fa-pencil-square-o fa-fw"></i>Tasks</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.sidebar-collapse -->
+        </div>
+    }
+    <!-- /.navbar-static-side -->
+</nav>
+

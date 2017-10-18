@@ -1,0 +1,70 @@
+﻿@model TaskManagerV2.ViewModels.Shared.FilterVM
+
+@{
+
+    string controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+    string actionName = this.ViewContext.RouteData.Values["action"].ToString();
+    var piPrefix = Model.GetType().GetProperty("Prefix");
+    string prefix = piPrefix.GetValue(Model).ToString();
+    var properties = new List<System.Reflection.PropertyInfo>(Model.GetType().GetProperties());
+    string filterLinkTemplate = "/" + controllerName + "/" + actionName + "?";
+}
+
+<div class="row" style="margin-top:20px;">
+    <div class="col-md-8 col-sm-offset-4">
+        <form action="@filterLinkTemplate" method="get">
+            @foreach (var key in this.Request.QueryString.AllKeys)
+            {
+                if (properties.Find(x => prefix + "." + x.Name == key) != null)
+                {
+                    continue;
+                }
+
+                <input type="hidden" name="@key" value="@Request.QueryString[key]" />
+            }
+
+            @foreach (var val in this.ViewContext.RouteData.Values)
+            {
+                if (val.Key == "controller" || val.Key == "action" || properties.Find(x => prefix + "." + x.Name == val.Key) != null)
+                {
+                    continue;
+                }
+
+                <input type="hidden" name="@val.Key" value="@val.Value.ToString()" />
+            }
+
+            @foreach (var test in properties)
+            {
+                if (test.CustomAttributes.FirstOrDefault(a => a.AttributeType.IsAssignableFrom(typeof(TaskManagerV2.Annotations.SkipFilter))) != null)
+                {
+                    continue;
+
+                }
+                if (test.CustomAttributes.FirstOrDefault(a => a.AttributeType.IsAssignableFrom(typeof(TaskManagerV2.Annotations.UsersDropdown))) != null)
+                {
+
+                    <div class="col-md-3" style="margin-top: 15px;">
+                        <select class="form-control" name="@(prefix).@(test.Name)">
+                            <option value="0">All Items</option>
+                            @foreach (var item in Model.Users)
+                            {
+                                <option value="@item.Id">@item.Username</option>
+                            }
+                        </select>
+                    </div>
+                    continue;
+                }
+
+                var value = test.GetValue(Model, null);
+                <div class="col-md-3">
+                    <span>@test.Name</span>
+                    <input type="search" class="form-control input-sm" name="@(prefix).@(test.Name)" value="@(value == null ? "" : value.ToString())" aria-controls="dataTables-example" />
+                </div>
+            }
+            <button style="margin-top:16px;" class="btn btn-default" type="submit" value="Filter">Search <i class="fa fa-search"></i></button>
+        </form>
+    </div>
+</div>
+
+
+
